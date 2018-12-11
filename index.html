@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="">
+      <meta name="author" content="">
+      <!-- Bootstrap Core CSS -->
+      <link rel="stylesheet" href="css/bootstrap.min.css">
+      <!-- Google Fonts Open Sans -->
+      <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,300italic,400italic,600,600italic,700,700italic' rel='stylesheet' type='text/css'>
+      <!-- Leafet CSS -->
+      <link rel="stylesheet" href="js/leaflet/leaflet.css" type="text/css" />
+      <style>
+         html, body{
+         font-family: 'Open Sans', sans-serif;
+         width:100%;
+         margin:0;
+         padding:0;
+         overflow-x:hidden;
+         }
+         #top{
+         width:100%;
+         height:50px;
+         background-color:black;
+         color:white;
+         margin-left:0px; /* why? */
+         margin-right:0px;
+         }
+         #mapContainer{
+         width:100%;
+         height:750px;
+         margin-left:0px; /* why? */
+         }
+         .button{
+         margin-bottom: 10px;
+         margin-top: 10px;
+         margin-left: 10px;
+         padding-top: 10px;
+         padding-bottom: 10px;
+         padding-left: 14px;
+         padding-right: 14px;
+         text-decoration: none;
+         font-weight: bold;
+         font-size: 14px;
+         line-height: 1.5;
+         text-transform: uppercase;
+         background-color: none;
+         color: black;
+         border: solid 1px black;
+         -webkit-transition: all 500ms ease;
+         -moz-transition: all 500ms ease;
+         -ms-transition: all 500ms ease;
+         transition: all 500ms ease;
+         }
+         .button:hover{
+         background-color: black;
+         color:white;
+         text-decoration:none;
+         cursor: pointer;
+         }
+         .button:active{
+         color:#2c7fb8;
+         text-decoration:none;
+         }
+         .active-button{
+         color:white;
+         background-color:#2c7fb8;
+         border: solid 1px #2c7fb8;
+         }
+         .active-button:hover{
+         background-color: black;
+         color:white;
+         border: solid 1px black;
+         text-decoration:none;
+         cursor: pointer;
+         }
+         .inline{
+         display:inline;
+         }
+         .bubble{
+         fill:#979c9c;
+         stroke: #343642;
+         stroke-width:1px;
+         fill-opacity:0.4;
+         }
+         .legendSize{
+         fill:#979c9c;
+         stroke: #343642;
+         stroke-width:1px;
+         fill-opacity:0.4;
+         }
+         .legendSize text{
+         fill:black;
+         fill-opacity:1;
+         stroke:none;
+         }
+         #title{
+         margin:0px;
+         width:500px;
+         padding-top:10px;
+         padding-left:20px;
+         }
+         .unselected-img{
+         opacity:0.4;
+         }
+         /* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
+         .show {
+         display:block;
+         }
+         .none{
+         display:none;
+         }
+         .col-md-9,.col-md-3, .col-md-12, .col-md-10,.col-md-2, .col-lg-10, .col-lg-2{
+         padding-left:0px;
+         padding-right:0px;
+         margin-left:0px;
+         margin-right:0px;
+         }
+         #new-dropdown{
+         position:absolute;
+         top:64px;
+         right:70px;
+         z-index: 999;
+         background-color: #F8F8F8;
+         }
+         .new-panel{
+         position:relative;
+         display: block;
+         width: 210px;
+         height: 60px;
+         border-top: 1px solid #FFF;
+         border-bottom: 1px solid #DDD;
+         cursor: pointer;
+         background:white;
+         z-index:999;
+         }
+         .top-menu-title{
+         text-transform: uppercase;
+         font-family: "AvenirNextCondensed-Medium", "AvenirNextLTW01-MediumC 721311", "Arial Narrow", Verdana, sans-serif;
+         font-size: 20px;
+         left: 5px;
+         text-align:left;
+         padding-left:10px;
+         padding-top:14px;
+         }
+         .top-menu-title p{
+         color:black;
+         text-align:left;
+         }
+         .text{
+         text-transform: uppercase;
+         font-family: "AvenirNextCondensed-Medium", "AvenirNextLTW01-MediumC 721311", "Arial Narrow", Verdana, sans-serif;
+         font-size: 16px;
+         left: 5px;
+         }
+         .text p{
+         color:black;
+         margin-top:10px;
+         margin-left:10px;
+         }
+         .text p:hover{
+         cursor:pointer;
+         color:#BBB;
+         transition: all 0.5S ease;
+         }
+         .panel .top{
+         height: 60px;
+         }
+         .panel .details .text {
+         margin: 20px auto 20px;
+         font-size: 18px;
+         text-align: center;
+         color: #222;
+         }
+         .details{
+         width: 210px;
+         }
+         .toggle-button {
+         position: absolute;
+         right: 10px;
+         top: 12px;
+         font-size: 22px;
+         color: white;
+         font-family: "Pictos";
+         border-radius: 50%;
+         width:30px;
+         height:30px;
+         padding-left:8px;
+         background-color:#BBB;
+         }
+         .toggle-button:hover{
+         background-color:black;
+         transition: all 0.5s ease;
+         }
+         .minus {
+         padding-left:3px;
+         }
+         /* bootstrap */
+         .col-lg-9,.col-lg-3,.col-lg-12,.col-md-12, .col-md-9,.col-md-6,.col-md-3{
+         margin-left:0px;
+         margin-right:0px;
+         padding-left:0px;
+         padding-right:0px;
+         }
+         .row{
+         width:100%;
+         margin-left:0px;
+         margin-right:0px;
+         }
+         #accordion{
+         padding-left:5px;
+         padding-right:5px;
+         max-height:750px;
+         }
+         #legendContainer h4{
+         text-align: left;
+         margin-left:20px;
+         margin-bottom:-10px;
+         font-weight:300;
+         }
+         #container {
+         min-height:100%;
+         position:relative;
+         }
+         #body {
+         padding-bottom:60px;   /* Height of the footer */
+         }
+         #footer {
+         position:absolute;
+         bottom:0;
+         width:100%;
+         height:60px;   /* Height of the footer */
+         background:black;
+         }
+         .infolabel{
+         position:absolute;
+         top:100px; /* take out */
+         left:50px; /* take out */
+         min-width:220px;
+         max-width:400px;
+         max-height:106px;
+         text-align: center;
+         padding:10px;
+         padding-top:4px;
+         /* border-radius: 10px; */
+         }
+         .infolabel p{
+         font-size:14px;
+         font-weight:300;
+         text-align:left;
+         }
+         .infolabel h4{
+         font-size:20px;
+         font-weight:400;
+         text-align:center;
+         color:white;
+         background-color:black;
+         padding:4px;
+         border-radius:4px;
+         }
+         .infolabel h5{
+         font-size:14px;
+         font-weight:300;
+         text-align:left;
+         }
+         @media all and (max-width: 1400px){
+         #species-container img{
+         width:90px;
+         height:90px;
+         -webkit-clip-path: circle(45px at center);
+         }
+         @media all and (max-width: 1290px){
+         #species-container img{
+         width:80px;
+         height:80px;
+         -webkit-clip-path: circle(40px at center);
+         }
+         @media all and (max-width: 1190px){
+         #species-container img{
+         width:70px;
+         height:70px;
+         -webkit-clip-path: circle(35px at center);
+         }
+         #species-container{
+         margin-left:80px;
+         }
+         }
+         @media all and (max-width: 1050px){
+         #species-container img{
+         width:64px;
+         height:64px;
+         -webkit-clip-path: circle(32px at center);
+         }
+         }
+         @media all and (max-width: 992px){
+         #species-container img{
+         width:80px;
+         height:80px;
+         -webkit-clip-path: circle(40px at center);
+         }
+         }
+      </style>
+   </head>
+   <body>
+      <div id="container">
+         <div id="body">
+            <div class="row" id="top">
+               <div class="col-md-12">
+                  <h3 id="title"> Hazard Maps </h3>
+               </div>
+            </div>
+            <div class="row">
+               <div class="col-lg-2">
+                  <div class="panel-group" id="accordion">
+                     <div class="panel panel-default" id="panel1">
+                        <div class="panel-heading">
+                           <h4 class="panel-title">
+                              <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne" data-plant="Banana2011" id="banana">
+                              Flooding
+                              </a>
+                           </h4>
+                        </div>
+                        <div id="collapseOne" class="panel-collapse collapse in">
+                           <div class="panel-body">
+                              <li> <a href = "https://data-cityofmadison.opendata.arcgis.com/datasets?q=flooding"> Madison flooding data (parcels, streets, potential standing water)</a></li>
+                           </div>
+                        </div>
+                     </div>
+                     <div class="panel panel-default" id="panel2">
+                        <div class="panel-heading">
+                           <h4 class="panel-title">
+                              <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" data-plant="Rice2011" id="rice">
+                              Fire
+                              </a>
+                           </h4>
+                        </div>
+                        <div id="collapseTwo" class="panel-collapse collapse">
+                           <div class="panel-body">
+                              <li> <a href = "https://www.cityofmadison.com/fire/your-safety">Location of Madison fire stations</a> </li>
+                           </div>
+                        </div>
+                     </div>
+                     <div class="panel panel-default" id="panel3">
+                        <div class="panel-heading">
+                           <h4 class="panel-title">
+                              <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree" data-plant="Cassava2010" id="cassava">
+                              Traffic
+                              </a>
+                           </h4>
+                        </div>
+                        <div id="collapseThree" class="panel-collapse collapse">
+                           <div class="panel-body">
+                             <li> <a href = "http://data-cityofmadison.opendata.arcgis.com/datasets/traffic-flow-map">Daily Traffic Flow Volume</a> </li>
+                              <li> <a href = "https://madison.com/traffic/">Madison Traffic Data</a> </li>
+                           </div>
+                        </div>
+                     </div>
+                     <div class="panel panel-default" id="panel4">
+                        <div class="panel-heading">
+                           <h4 class="panel-title">
+                              <a data-toggle="collapse" data-parent="#accordion" href="#collapseFour" data-plant="Plantain2010" id="plantain">
+                              Air Quality
+                              </a>
+                           </h4>
+                        </div>
+                        <div id="collapseFour" class="panel-collapse collapse">
+                           <div class="panel-body">
+                              <li> <a href = "http://scorecard.goodguide.com/env-releases/cap/state.tcl?fips_state_code=17"> Scorecard: search by zipcode to get air quality information</a> </li>
+                              <li> <a href = "http://www.cityofmadison.com/water/waterQuality/myWells.cfm"> City of Madison: Search by address to get water quality information</a> </li>
+                           </div>
+                        </div>
+                     </div>
+                     <div class="panel panel-default" id="panel5">
+                        <div class="panel-heading">
+                           <h4 class="panel-title">
+                              <a data-toggle="collapse" data-parent="#accordion" href="#collapseFive" data-plant="Wheat2011" id="wheat">
+                              Water Quality
+                              </a>
+                           </h4>
+                        </div>
+                        <div id="collapseFive" class="panel-collapse collapse">
+                           <div class="panel-body">
+                             <li> <a href = "https://www.epa.gov/waterdata/water-quality-data-wqx"> Water quality info such as cleanest water, exceptional lakes. </a> </li>
+                           </div>
+                        </div>
+                     </div>
+                     <div class="panel panel-default" id="panel6">
+                        <div class="panel-heading">
+                           <h4 class="panel-title">
+                              <a data-toggle="collapse" data-parent="#accordion" href="#collapseSix">
+                              Tornado
+                              </a>
+                           </h4>
+                        </div>
+                        <div id="collapseSix" class="panel-collapse collapse">
+                           <div class="panel-body">
+                               <li> <a href = "http://www.wisconsinview.org/hazard-support/"> Wisconsin tornados </a> </li>
+                           </div>
+                        </div>
+                     </div>
+                     <div class="panel panel-default" id="panel7">
+                        <div class="panel-heading">
+                           <h4 class="panel-title">
+                              <a data-toggle="collapse" data-parent="#accordion" href="#collapseSeven">
+                              General
+                              </a>
+                           </h4>
+                        </div>
+                        <div id="collapseSeven" class="panel-collapse collapse">
+                           <div class="panel-body">
+                               <li> <a href = "http://relief.ersc.wisc.edu/wisconsinview/session3.php"> High resolution NAIP </a> </li>
+                               <li> <a href = "https://www3.epa.gov/myem/envmap/myenv.html?minx=-89.50944&miny=42.95013&maxx=-89.26344&maxy=43.19613&ve=10,43.07313,-89.38644&pText=Madison%2C%20Wisconsin&pTheme="> MyEnvironment </a> </li>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+                  <div id="legendContainer">
+                  </div>
+               </div>
+               <div class="col-lg-10">
+                  <div id="mapContainer">
+                  </div>
+               </div>
+            </div>
+         </div>
+         <!-- end body -->
+         <!-- jQuery -->
+         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+         <!-- Bootstrap Core JavaScript -->
+         <script src="js/bootstrap.min.js"></script>
+         <!-- D3 -->
+         <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+         <!-- D3.geo -->
+         <script src="http://d3js.org/d3.geo.projection.v0.min.js"></script>
+         <!-- Leaflet -->
+         <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.3.4/leaflet.js" type="text/javascript"></script>
+         <script src='https://npmcdn.com/@turf/turf/turf.min.js'></script>
+         /* https://api.tiles.mapbox.com/mapbox.js/plugins/turf/v1.3.0/turf.min.js */
+         <!--  project files -->
+         <script src="flooded_streets.js"></script>
+         <script src="Drainage_Ponds.js"></script>
+         <script src="buildings.js"></script>
+         <script src="Bike_Hazards.js"></script>
+         <script>
+         var map = new L.Map("mapContainer", {
+           center: [43.075303, -89.383602],
+           zoom: 16,
+           minZoom: 10,
+           maxZoom: 18
+          });
+
+          var OSM = L.tileLayer('http://{s}.tile.thunderforest.com/landscape/{z}/{x}/{y}.png').addTo(map);
+          var Thunderfrost = L.tileLayer('http://{s}.tile.thunderforest.com/transport/{z}/{x}/{y}.png');
+
+
+          /* var markerHtmlStyles = {
+            'background-color': '#583470',
+            'width': 3rem,
+            'height': 3rem,
+            'display': block,
+            'left': -1.5rem,
+            'top': -1.5rem,
+            'position': relative,
+            'border-radius': 3rem 3rem 0,
+            'transform': rotate(45deg),
+            'border': 1px solid #FFFFFF
+          }
+
+
+          var icon = Leaflet.divIcon({
+            className: "my-custom-pin",
+            iconAnchor: [0, 24],
+            labelAnchor: [-6, 0],
+            popupAnchor: [0, -36],
+            html: '<span style= '+markerHtmlStyles+' />'
+          }) */
+
+          var floodstyle = {
+           "color": "#36a3e0",
+           "weight": 5,
+           "opacity": 0.8
+          };
+
+          var buildingstyle = {
+           "color": "#efb16f",
+           "opacity": 0.8
+          };
+
+          var bikestyle = {
+            "color": "#fdae6b",
+            "opacity": 0.9
+          }
+
+          var pondstyle = {
+           "color": "#3838f9",
+           "opacity": 0.9
+          };
+
+
+          var flood = L.geoJSON(flooded_streets, {
+           style: floodstyle
+          }).addTo(map);
+
+          var ponds = L.geoJSON(Drainage_Ponds, {
+           style: pondstyle
+          }).addTo(map);
+
+          var bikes = L.geoJSON(bike_hazards, {
+           style: bikestyle
+          }).addTo(map);
+
+          console.log(ponds);
+
+          /* var bufferedFlood = turf.buffer(flooded_streets, 4 , 'meters'); */
+          /* var result = turf.featurecollection([bufferedFlood, flooded_streets]); */
+
+
+
+
+          var baseMaps = {
+           "OSM": OSM,
+           "Thunderfrost": Thunderfrost
+          };
+
+          var overlayMaps = {
+           "Flooded Streets": flood,
+           "Drainage Ponds": ponds,
+           "Bike Hazards": bikes
+          };
+
+
+          L.control.layers(baseMaps, overlayMaps).addTo(map);
+
+          map.scrollWheelZoom.disable();
+          map.touchZoom.disable();
+
+          var svg = d3.select(map.getPanes().overlayPane).append("svg"),
+           g = svg.append("g").attr("class", "leaflet-zoom-hide");
+
+          var buildingPath = g.append("g");
+
+          function projectPoint(x, y) {
+           var point = map.latLngToLayerPoint(new L.LatLng(y, x));
+           this.stream.point(point.x, point.y);
+
+          }
+          var transform = d3.geo.transform({
+               point: projectPoint
+           }),
+           path = d3.geo.path().projection(transform);
+
+
+          buildingPath.selectAll("path")
+           .data(buildings.features)
+           .enter()
+           .append("path")
+           .attr("d", path)
+           .attr("class", "building")
+           .attr("fill", "red")
+           .style("opacity", 0.9)
+           .style("stroke-width", 1)
+           .style("stroke", 'white')
+           .attr('id', function(d) {
+              return d.properties.osm_id;
+            });
+
+          buildingPath.selectAll("path")
+           .data(buildings.features)
+           .on('mouseover', function(d,i) {
+               d3.select(this)
+                .attr('fill', 'black')
+                .style('cursor','pointer');
+               console.log(d);
+               drawInfolabel(d,i);
+           })
+           .on('mouseout', function(d,i) {
+						 d3.selectAll(".building").attr('fill','red');
+             removeInfolabel(d,i);
+             });
+
+
+
+
+          map.on('zoomend', function() {
+           resetView();
+          });
+
+          map.on("moveend", function() {
+           resetView();
+          });
+          resetView();
+
+
+          function resetView() {
+           console.log("reset");
+           var bounds = path.bounds(buildings),
+               topLeft = bounds[0],
+               bottomRight = bounds[1];
+
+
+           svg.attr("width", bottomRight[0] - topLeft[0] + 1000)
+               .attr("height", bottomRight[1] - topLeft[1])
+               .style("left", topLeft[0] + "px")
+               .style("top", topLeft[1] + "px");
+
+           g.attr("transform", "translate(" + -topLeft[0] + "," + -topLeft[1] + ")");
+
+           buildingPath.selectAll("path.building").attr("d", path);
+          }
+
+          function drawInfolabel(d,i){
+
+        		var labelHTML = "<h4>"+d.properties.name+"</h4><b><p>"+d.properties.osm_id+"</b> ("+d.properties.type+")";
+        		var infolabel=d3.select("#mapContainer").append("div")
+        			.attr("class","infolabel")
+        			.style("box-shadow", "5px 5px 5px #888888")
+        			.style("background-color", "white")
+        			.attr("id", "infolabel-"+i)
+        			.style("color","black")
+        			.html(labelHTML);
+
+        		}
+
+        		function removeInfolabel(d,i){
+        			d3.select(".infolabel").remove();
+        			d3.select("#infolabel-"+i).remove();
+        		}
+
+
+
+
+         </script>
+         <div id="footer"></div>
+      </div>
+      <!-- end container -->
+   </body>
